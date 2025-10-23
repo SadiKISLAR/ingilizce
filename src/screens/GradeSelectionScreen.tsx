@@ -1,10 +1,14 @@
 // Sınıf Seçim Ekranı - Kullanıcı hangi sınıfta onu seçer (5-8. sınıflar)
 
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StatusBar, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StatusBar, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackNavigationProp } from '../navigation/types';
 import { GradeLevel } from '../types';
 
 const GradeSelectionScreen = () => {
+  const navigation = useNavigation<RootStackNavigationProp>();
+
   // Sınıflar - 5, 6, 7, 8
   const grades: { level: GradeLevel; isActive: boolean }[] = [
     { level: 5, isActive: false }, // Şimdilik pasif
@@ -16,8 +20,8 @@ const GradeSelectionScreen = () => {
   // Sınıf seçildiğinde
   const handleGradePress = (grade: GradeLevel, isActive: boolean) => {
     if (isActive) {
-      // Geçici olarak alert göster
-      Alert.alert('Sınıf Seçildi', `${grade}. sınıf seçildi!`);
+      // Ünite listesine git
+      navigation.navigate('UnitList', { gradeLevel: grade });
     }
   };
 

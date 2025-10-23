@@ -4,8 +4,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
+import { View, Text, StyleSheet } from 'react-native';
 
-// Ekranları import edeceğiz (henüz oluşturmadık)
+// Ekranları import edeceğiz
 import SplashScreen from '../screens/SplashScreen';
 import GradeSelectionScreen from '../screens/GradeSelectionScreen';
 import UnitListScreen from '../screens/UnitListScreen';
@@ -15,9 +16,26 @@ import UnitDetailScreen from '../screens/UnitDetailScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
-  return (
-    // NavigationContainer: Tüm navigasyonu sarmalayan ana bileşen
-    <NavigationContainer>
+  // Error handling
+  const [hasError, setHasError] = React.useState(false);
+
+  if (hasError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Bir hata oluştu</Text>
+      </View>
+    );
+  }
+
+  try {
+    return (
+      // NavigationContainer: Tüm navigasyonu sarmalayan ana bileşen
+      <NavigationContainer
+        onError={(error) => {
+          console.error('Navigation Error:', error);
+          setHasError(true);
+        }}
+      >
       {/* Stack.Navigator: Sayfa yığınını yöneten bileşen */}
       <Stack.Navigator
         // İlk açılacak ekran
@@ -66,8 +84,32 @@ const AppNavigator = () => {
         />
       </Stack.Navigator>
     </NavigationContainer>
-  );
+    );
+  } catch (error) {
+    console.error('AppNavigator Error:', error);
+    setHasError(true);
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Uygulama yüklenirken hata oluştu</Text>
+      </View>
+    );
+  }
 };
+
+const styles = StyleSheet.create({
+  errorContainer: {
+    flex: 1,
+    backgroundColor: '#0066CC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+});
 
 export default AppNavigator;
 
