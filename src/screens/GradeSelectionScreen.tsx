@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, ScrollView, StatusBar, StyleSheet } from 
 import { useNavigation } from '@react-navigation/native';
 import { RootStackNavigationProp } from '../navigation/types';
 import { GradeLevel } from '../types';
+import AdBanner from '../components/AdBanner';
 
 const GradeSelectionScreen = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -79,6 +80,9 @@ const GradeSelectionScreen = () => {
           ))}
         </View>
       </ScrollView>
+      
+      {/* Banner Reklam - En altta */}
+      <AdBanner />
     </View>
   );
 };
