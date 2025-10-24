@@ -65,12 +65,15 @@ const UnitDetailScreen = () => {
 
         {/* Kelime Kartları Butonu */}
         <TouchableOpacity
-          onPress={() => console.log('Kelime Kartları')}
+          onPress={() => navigation.navigate('Flashcards', { unitId: unit.id })}
           style={styles.activityButton}
           activeOpacity={0.8}
         >
           <View style={styles.activityCard}>
             <Text style={styles.activityText}>Kelime Kartları</Text>
+            <Text style={styles.activitySubtext}>
+              {unit.words.length} kelime
+            </Text>
           </View>
         </TouchableOpacity>
 
@@ -186,6 +189,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  activitySubtext: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 8,
+    opacity: 0.8,
   },
 });
 

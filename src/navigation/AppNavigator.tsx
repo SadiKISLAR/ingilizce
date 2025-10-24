@@ -11,6 +11,7 @@ import SplashScreen from '../screens/SplashScreen';
 import GradeSelectionScreen from '../screens/GradeSelectionScreen';
 import UnitListScreen from '../screens/UnitListScreen';
 import UnitDetailScreen from '../screens/UnitDetailScreen';
+import FlashcardsScreen from '../screens/FlashcardsScreen';
 
 // Stack Navigator oluşturuyoruz
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -81,6 +82,17 @@ const AppNavigator = () => {
           name="UnitDetail" 
           component={UnitDetailScreen}
           options={{ title: 'Ünite Detayı' }}
+        />
+        
+        {/* Kelime Kartları Ekranı */}
+        <Stack.Screen 
+          name="Flashcards" 
+          component={FlashcardsScreen}
+          options={{ 
+            title: 'Kelime Kartları',
+            headerStyle: { backgroundColor: '#0066CC' },
+            headerTintColor: '#fff',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

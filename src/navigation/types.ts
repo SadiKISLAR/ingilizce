@@ -20,18 +20,8 @@ export type RootStackParamList = {
     unitId: string; // Hangi ünite
   };
   
-  // Kelime kartları ekranı
+  // Kelime kartları ekranı (flip card)
   Flashcards: {
-    unitId: string;
-  };
-  
-  // Test ekranı
-  Test: {
-    unitId: string;
-  };
-  
-  // Kelime listesi ekranı
-  WordList: {
     unitId: string;
   };
 };
