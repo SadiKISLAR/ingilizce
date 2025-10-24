@@ -59,7 +59,7 @@ const UnitListScreen = () => {
             activeOpacity={0.8}
           >
             <View style={styles.unitCard}>
-              <Text style={styles.unitText}>{unit.number}. Sınıf</Text>
+              <Text style={styles.unitText}>{unit.number}. Ünite</Text>
             </View>
           </TouchableOpacity>
         ))}
