@@ -13,6 +13,7 @@ import {
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import { grade6Units } from '../data/mockData';
+import AdBanner from '../components/AdBanner';
 
 type FlashcardsScreenRouteProp = RouteProp<RootStackParamList, 'Flashcards'>;
 
@@ -179,6 +180,9 @@ const FlashcardsScreen = () => {
           <Text style={styles.navButtonText}>Sonraki →</Text>
         </TouchableOpacity>
       </View>
+      
+      {/* Banner Reklam - En altta */}
+      <AdBanner />
     </View>
   );
 };

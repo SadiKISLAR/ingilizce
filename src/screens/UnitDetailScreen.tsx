@@ -5,6 +5,7 @@ import { View, Text, TouchableOpacity, ScrollView, StatusBar, StyleSheet } from 
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackNavigationProp, RootStackParamList } from '../navigation/types';
 import { grade6Units } from '../data/mockData';
+import AdBanner from '../components/AdBanner';
 
 type UnitDetailScreenRouteProp = RouteProp<RootStackParamList, 'UnitDetail'>;
 
@@ -88,6 +89,9 @@ const UnitDetailScreen = () => {
           </View>
         </TouchableOpacity>
       </ScrollView>
+      
+      {/* Banner Reklam - En altta */}
+      <AdBanner />
     </View>
   );
 };
