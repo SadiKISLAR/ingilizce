@@ -1,6 +1,6 @@
 // Kelime Kartları Ekranı - Kartlar dönerek İngilizce/Türkçe gösterir
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -14,6 +14,7 @@ import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import { grade6Units } from '../data/mockData';
 import AdBanner from '../components/AdBanner';
+import * as Speech from 'expo-speech';
 
 type FlashcardsScreenRouteProp = RouteProp<RootStackParamList, 'Flashcards'>;
 
@@ -31,9 +32,23 @@ const FlashcardsScreen = () => {
   // State
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true); // Otomatik ses oynatma
   
   // Animasyon değeri
   const flipAnimation = useRef(new Animated.Value(0)).current;
+  
+  // Kelime değiştiğinde otomatik oku
+  useEffect(() => {
+    if (autoPlay && !isFlipped) {
+      // Kısa bir gecikme ekleyelim (animasyon için)
+      const timer = setTimeout(() => {
+        speakWord();
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, autoPlay, isFlipped]);
   
   if (!unit || unit.words.length === 0) {
     return (
@@ -68,9 +83,41 @@ const FlashcardsScreen = () => {
     }
   };
   
+  // Kelimeyi sesli okuma fonksiyonu
+  const speakWord = async () => {
+    try {
+      // Eğer konuşma devam ediyorsa durdur
+      const isSpeakingNow = await Speech.isSpeakingAsync();
+      if (isSpeakingNow) {
+        await Speech.stop();
+        setIsSpeaking(false);
+        return;
+      }
+      
+      setIsSpeaking(true);
+      
+      // İngilizce kelimeyi oku (İngiliz aksanı ile)
+      Speech.speak(currentWord.english, {
+        language: 'en-US', // Amerikan İngilizcesi
+        pitch: 1.0, // Normal ton
+        rate: 0.75, // Biraz yavaş (öğrenme için)
+        onDone: () => setIsSpeaking(false),
+        onStopped: () => setIsSpeaking(false),
+        onError: () => setIsSpeaking(false),
+      });
+    } catch (error) {
+      console.error('Ses hatası:', error);
+      setIsSpeaking(false);
+    }
+  };
+  
   // Sonraki kelime
-  const nextCard = () => {
+  const nextCard = async () => {
     if (currentIndex < unit.words.length - 1) {
+      // Ses varsa durdur
+      await Speech.stop();
+      setIsSpeaking(false);
+      
       setCurrentIndex(currentIndex + 1);
       setIsFlipped(false);
       flipAnimation.setValue(0);
@@ -78,8 +125,12 @@ const FlashcardsScreen = () => {
   };
   
   // Önceki kelime
-  const prevCard = () => {
+  const prevCard = async () => {
     if (currentIndex > 0) {
+      // Ses varsa durdur
+      await Speech.stop();
+      setIsSpeaking(false);
+      
       setCurrentIndex(currentIndex - 1);
       setIsFlipped(false);
       flipAnimation.setValue(0);
@@ -115,10 +166,44 @@ const FlashcardsScreen = () => {
       
       {/* Başlık */}
       <View style={styles.header}>
-        <Text style={styles.title}>{unit.title}</Text>
-        <Text style={styles.progress}>
-          {currentIndex + 1} / {unit.words.length}
-        </Text>
+        <View style={styles.headerTop}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>{unit.title}</Text>
+            <Text style={styles.progress}>
+              {currentIndex + 1} / {unit.words.length}
+            </Text>
+          </View>
+          
+          <View style={styles.headerButtons}>
+            {/* Otomatik Oynatma Toggle */}
+            <TouchableOpacity 
+              onPress={() => setAutoPlay(!autoPlay)}
+              style={[styles.autoPlayButton, autoPlay && styles.autoPlayButtonActive]}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.autoPlayIcon}>
+                {autoPlay ? '🔄' : '⏸️'}
+              </Text>
+              <Text style={styles.autoPlayText}>
+                {autoPlay ? 'Otomatik' : 'Manuel'}
+              </Text>
+            </TouchableOpacity>
+            
+            {/* Ses Butonu */}
+            <TouchableOpacity 
+              onPress={speakWord}
+              style={styles.speakerButton}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.speakerIcon}>
+                {isSpeaking ? '🔊' : '🔈'}
+              </Text>
+              <Text style={styles.speakerText}>
+                {isSpeaking ? 'Durakla' : 'Dinle'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
       
       {/* Kart */}
@@ -204,7 +289,15 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 24,
-    alignItems: 'center',
+    paddingBottom: 16,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  titleContainer: {
+    flex: 1,
   },
   title: {
     color: 'white',
@@ -216,6 +309,54 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     opacity: 0.9,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+  },
+  autoPlayButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 70,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    marginRight: 8,
+  },
+  autoPlayButtonActive: {
+    backgroundColor: 'rgba(0, 204, 102, 0.3)',
+    borderColor: '#00CC66',
+  },
+  autoPlayIcon: {
+    fontSize: 20,
+    marginBottom: 2,
+  },
+  autoPlayText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  speakerButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 80,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  speakerIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  speakerText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
   },
   cardContainer: {
     flex: 1,
