@@ -61,20 +61,10 @@ const UnitDetailScreen = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* Üst kısım - Logo ve progress */}
+      {/* Üst kısım - Sadece ünite başlığı */}
       <View style={styles.header}>
-        {/* Logo kartı */}
-        <View style={styles.logoCard}>
-          <View style={styles.logoRow}>
-            <View style={styles.logoBox}>
-              <Text style={styles.logoTextIng}>ing</Text>
-            </View>
-            <View style={styles.logoDivider} />
-            <View style={styles.logoTextContainer}>
-              <Text style={styles.logoTextLearn}>Learn</Text>
-            </View>
-          </View>
-        </View>
+        <Text style={styles.unitTitle}>{unit.title}</Text>
+        <Text style={styles.unitSubtitle}>Ünite {unit.number}</Text>
         
         {/* Progress bar */}
         <View style={styles.progressBarContainer}>
@@ -205,50 +195,21 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 48,
+    paddingTop: 64,
     paddingBottom: 32,
   },
-  logoCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderLeftWidth: 8,
-    borderLeftColor: 'white',
-  },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  logoBox: {
-    backgroundColor: '#1e3a5f',
-    padding: 16,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  logoTextIng: {
+  unitTitle: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  logoDivider: {
-    width: 4,
-    height: 40,
-    backgroundColor: '#0066CC',
-    marginRight: 12,
-  },
-  logoTextContainer: {
-    paddingLeft: 12,
-  },
-  logoTextLearn: {
-    color: '#00CC66',
-    fontSize: 24,
-    fontWeight: 'bold',
+  unitSubtitle: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 18,
+    marginBottom: 24,
+    textAlign: 'center',
   },
   progressBarContainer: {
     width: 256,
