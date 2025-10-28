@@ -12,6 +12,7 @@ import GradeSelectionScreen from '../screens/GradeSelectionScreen';
 import UnitListScreen from '../screens/UnitListScreen';
 import UnitDetailScreen from '../screens/UnitDetailScreen';
 import FlashcardsScreen from '../screens/FlashcardsScreen';
+import TestScreen from '../screens/TestScreen';
 
 // Stack Navigator oluşturuyoruz
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,12 +32,7 @@ const AppNavigator = () => {
   try {
     return (
       // NavigationContainer: Tüm navigasyonu sarmalayan ana bileşen
-      <NavigationContainer
-        onError={(error) => {
-          console.error('Navigation Error:', error);
-          setHasError(true);
-        }}
-      >
+      <NavigationContainer>
       {/* Stack.Navigator: Sayfa yığınını yöneten bileşen */}
       <Stack.Navigator
         // İlk açılacak ekran
@@ -90,6 +86,17 @@ const AppNavigator = () => {
           component={FlashcardsScreen}
           options={{ 
             title: 'Kelime Kartları',
+            headerStyle: { backgroundColor: '#0066CC' },
+            headerTintColor: '#fff',
+          }}
+        />
+        
+        {/* Test Ekranı */}
+        <Stack.Screen 
+          name="Test" 
+          component={TestScreen}
+          options={{ 
+            title: 'Kelime Testi',
             headerStyle: { backgroundColor: '#0066CC' },
             headerTintColor: '#fff',
           }}

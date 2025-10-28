@@ -24,6 +24,11 @@ export type RootStackParamList = {
   Flashcards: {
     unitId: string;
   };
+  
+  // Test ekranı - Çoktan seçmeli kelime testi
+  Test: {
+    unitId: string;
+  };
 };
 
 // Navigation prop tipini oluşturuyoruz (her ekranda kullanacağız)

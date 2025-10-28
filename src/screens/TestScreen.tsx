@@ -1,12 +1,292 @@
-// Test Ekranı - Sadece basit bir ekran
+// Test Ekranı - Çoktan seçmeli kelime testi
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  ScrollView,
+  StyleSheet, 
+  StatusBar,
+  Animated 
+} from 'react-native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { RootStackParamList } from '../navigation/types';
+import { grade6Units } from '../data/mockData';
+import { generateQuiz, calculateScore, getScoreMessage, QuizQuestion } from '../utils/quizGenerator';
+import AdBanner from '../components/AdBanner';
+
+type TestScreenRouteProp = RouteProp<RootStackParamList, 'Test'>;
 
 const TestScreen = () => {
+  const route = useRoute<TestScreenRouteProp>();
+  const navigation = useNavigation();
+  const { unitId } = route.params;
+  
+  // Üniteyi bul
+  const unit = grade6Units.find(u => u.id === unitId);
+  
+  // State
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
+  
+  // Quiz'i başlat
+  useEffect(() => {
+    if (unit && unit.words.length >= 4) {
+      const quiz = generateQuiz(unit.words, 10);
+      setQuestions(quiz);
+      // Fade in animasyonu
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [unit]);
+  
+  if (!unit) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Ünite bulunamadı</Text>
+      </View>
+    );
+  }
+  
+  if (unit.words.length < 4) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Test için en az 4 kelime gerekli</Text>
+      </View>
+    );
+  }
+  
+  if (questions.length === 0) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Test hazırlanıyor...</Text>
+      </View>
+    );
+  }
+  
+  const currentQuestion = questions[currentQuestionIndex];
+  
+  // Cevap seçimi
+  const handleAnswerSelect = (answer: string) => {
+    if (isAnswered) return; // Zaten cevaplandıysa işlem yapma
+    
+    setSelectedAnswer(answer);
+    setIsAnswered(true);
+    
+    // Doğru mu kontrol et
+    if (answer === currentQuestion.correctAnswer) {
+      setCorrectCount(correctCount + 1);
+    }
+  };
+  
+  // Sonraki soru
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(null);
+      setIsAnswered(false);
+      
+      // Fade animasyonu
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // Test bitti, sonuçları göster
+      setShowResults(true);
+    }
+  };
+  
+  // Testi tekrarla
+  const handleRetry = () => {
+    const quiz = generateQuiz(unit.words, 10);
+    setQuestions(quiz);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setIsAnswered(false);
+    setCorrectCount(0);
+    setShowResults(false);
+    fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+  
+  // Sonuç Ekranı
+  if (showResults) {
+    const score = calculateScore(correctCount, questions.length);
+    const message = getScoreMessage(score);
+    
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        
+        <ScrollView contentContainerStyle={styles.resultsContainer}>
+          <Text style={styles.resultsTitle}>Test Tamamlandı! 🎉</Text>
+          
+          <View style={styles.scoreCard}>
+            <Text style={styles.scoreText}>{score}</Text>
+            <Text style={styles.scoreLabel}>Puan</Text>
+          </View>
+          
+          <Text style={styles.scoreMessage}>{message}</Text>
+          
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{correctCount}</Text>
+              <Text style={styles.statLabel}>Doğru ✓</Text>
+            </View>
+            
+            <View style={styles.statDivider} />
+            
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{questions.length - correctCount}</Text>
+              <Text style={styles.statLabel}>Yanlış ✗</Text>
+            </View>
+            
+            <View style={styles.statDivider} />
+            
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{questions.length}</Text>
+              <Text style={styles.statLabel}>Toplam</Text>
+            </View>
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={handleRetry}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.retryButtonText}>🔄 Tekrar Dene</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.backButtonText}>← Geri Dön</Text>
+          </TouchableOpacity>
+        </ScrollView>
+        
+        <AdBanner />
+      </View>
+    );
+  }
+  
+  // Soru Ekranı
+  const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Test Ekranı Çalışıyor! 🎉</Text>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Progress Bar */}
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+        </View>
+        <Text style={styles.progressText}>
+          Soru {currentQuestionIndex + 1} / {questions.length}
+        </Text>
+      </View>
+      
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
+          {/* Soru Tipi */}
+          <View style={styles.questionTypeContainer}>
+            <Text style={styles.questionTypeText}>
+              {currentQuestion.type === 'english-to-turkish' 
+                ? '🇬🇧 İngilizce → 🇹🇷 Türkçe' 
+                : '🇹🇷 Türkçe → 🇬🇧 İngilizce'}
+            </Text>
+          </View>
+          
+          {/* Soru */}
+          <View style={styles.questionCard}>
+            <Text style={styles.questionLabel}>
+              {currentQuestion.type === 'english-to-turkish' 
+                ? 'İngilizce kelime:' 
+                : 'Türkçe kelime:'}
+            </Text>
+            <Text style={styles.questionText}>
+              {currentQuestion.type === 'english-to-turkish' 
+                ? currentQuestion.questionWord.english 
+                : currentQuestion.questionWord.turkish}
+            </Text>
+          </View>
+          
+          {/* Seçenekler */}
+          <View style={styles.optionsContainer}>
+            {currentQuestion.options.map((option, index) => {
+              const isCorrect = option === currentQuestion.correctAnswer;
+              const isSelected = option === selectedAnswer;
+              
+              let optionStyle = styles.optionButton;
+              if (isAnswered) {
+                if (isCorrect) {
+                  optionStyle = styles.optionButtonCorrect;
+                } else if (isSelected && !isCorrect) {
+                  optionStyle = styles.optionButtonWrong;
+                }
+              } else if (isSelected) {
+                optionStyle = styles.optionButtonSelected;
+              }
+              
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={optionStyle}
+                  onPress={() => handleAnswerSelect(option)}
+                  disabled={isAnswered}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.optionLetter}>
+                    {String.fromCharCode(65 + index)})
+                  </Text>
+                  <Text style={styles.optionText}>{option}</Text>
+                  {isAnswered && isCorrect && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                  {isAnswered && isSelected && !isCorrect && (
+                    <Text style={styles.crossmark}>✗</Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          
+          {/* Sonraki Buton */}
+          {isAnswered && (
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={handleNext}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.nextButtonText}>
+                {currentQuestionIndex < questions.length - 1 
+                  ? 'Sonraki Soru →' 
+                  : 'Sonuçları Gör 🎯'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </Animated.View>
+      </ScrollView>
+      
+      <AdBanner />
     </View>
   );
 };
@@ -15,13 +295,263 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0066CC',
+  },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: '#0066CC',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
-  text: {
+  errorText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  progressContainer: {
+    padding: 20,
+    paddingTop: 60,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  progressFill: {
+    height: 8,
+    backgroundColor: '#00CC66',
+    borderRadius: 4,
+  },
+  progressText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  questionContainer: {
+    flex: 1,
+  },
+  questionTypeContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignSelf: 'center',
+    marginBottom: 24,
+  },
+  questionTypeText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  questionCard: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 32,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  questionLabel: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  questionText: {
+    fontSize: 32,
     fontWeight: 'bold',
+    color: '#1e3a5f',
+    textAlign: 'center',
+  },
+  optionsContainer: {
+    marginBottom: 12,
+  },
+  optionButton: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginBottom: 12,
+  },
+  optionButtonSelected: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#0066CC',
+    marginBottom: 12,
+  },
+  optionButtonCorrect: {
+    backgroundColor: '#d4edda',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#28a745',
+    marginBottom: 12,
+  },
+  optionButtonWrong: {
+    backgroundColor: '#f8d7da',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#dc3545',
+    marginBottom: 12,
+  },
+  optionLetter: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0066CC',
+    marginRight: 16,
+    minWidth: 30,
+  },
+  optionText: {
+    fontSize: 18,
+    color: '#1e3a5f',
+    flex: 1,
+  },
+  checkmark: {
+    fontSize: 28,
+    color: '#28a745',
+    marginLeft: 8,
+  },
+  crossmark: {
+    fontSize: 28,
+    color: '#dc3545',
+    marginLeft: 8,
+  },
+  nextButton: {
+    backgroundColor: '#00CC66',
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  nextButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  // Sonuç Ekranı Stilleri
+  resultsContainer: {
+    padding: 20,
+    alignItems: 'center',
+    paddingTop: 80,
+  },
+  resultsTitle: {
+    color: 'white',
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  scoreCard: {
+    backgroundColor: 'white',
+    borderRadius: 100,
+    width: 200,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 16,
+  },
+  scoreText: {
+    fontSize: 72,
+    fontWeight: 'bold',
+    color: '#0066CC',
+  },
+  scoreLabel: {
+    fontSize: 20,
+    color: '#666',
+    marginTop: 8,
+  },
+  scoreMessage: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 32,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 32,
+    width: '100%',
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValue: {
+    color: 'white',
+    fontSize: 36,
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    color: 'white',
+    fontSize: 16,
+    marginTop: 4,
+    opacity: 0.9,
+  },
+  statDivider: {
+    width: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 16,
+  },
+  retryButton: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    marginBottom: 16,
+  },
+  retryButtonText: {
+    color: '#0066CC',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  backButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
