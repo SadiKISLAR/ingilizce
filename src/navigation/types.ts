@@ -35,6 +35,11 @@ export type RootStackParamList = {
     unitId: string;
     testMode?: string; // 'multiple-choice' | 'matching' | 'fill-blank'
   };
+  
+  // Kelime avı oyunu ekranı
+  WordSearch: {
+    unitId: string;
+  };
 };
 
 // Navigation prop tipini oluşturuyoruz (her ekranda kullanacağız)

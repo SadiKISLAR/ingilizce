@@ -14,6 +14,7 @@ import UnitDetailScreen from '../screens/UnitDetailScreen';
 import FlashcardsScreen from '../screens/FlashcardsScreen';
 import TestModeSelectionScreen from '../screens/TestModeSelectionScreen';
 import TestScreen from '../screens/TestScreen';
+import WordSearchScreen from '../screens/WordSearchScreen';
 
 // Stack Navigator oluşturuyoruz
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -109,6 +110,17 @@ const AppNavigator = () => {
           component={TestScreen}
           options={{ 
             title: 'Kelime Testi',
+            headerStyle: { backgroundColor: '#0066CC' },
+            headerTintColor: '#fff',
+          }}
+        />
+        
+        {/* Kelime Avı Oyunu Ekranı */}
+        <Stack.Screen 
+          name="WordSearch" 
+          component={WordSearchScreen}
+          options={{ 
+            title: 'Kelime Avı',
             headerStyle: { backgroundColor: '#0066CC' },
             headerTintColor: '#fff',
           }}

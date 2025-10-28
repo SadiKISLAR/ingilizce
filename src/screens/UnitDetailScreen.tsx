@@ -115,6 +115,20 @@ const UnitDetailScreen = () => {
             </Text>
           </View>
         </TouchableOpacity>
+
+        {/* Kelime Avı Oyunu Butonu */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('WordSearch', { unitId: unit.id })}
+          style={styles.activityButton}
+          activeOpacity={0.8}
+        >
+          <View style={styles.activityCard}>
+            <Text style={styles.activityText}>Kelime Avı Oyunu 🔍</Text>
+            <Text style={styles.activitySubtext}>
+              {unit.words.length >= 6 ? 'Kelimeleri bulmaca içinde bul' : 'En az 6 kelime gerekli'}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
       
       {/* Kelime Listesi Modal */}
