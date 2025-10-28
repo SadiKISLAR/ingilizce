@@ -25,9 +25,15 @@ export type RootStackParamList = {
     unitId: string;
   };
   
+  // Test modu seçim ekranı
+  TestModeSelection: {
+    unitId: string;
+  };
+  
   // Test ekranı - Çoktan seçmeli kelime testi
   Test: {
     unitId: string;
+    testMode?: string; // 'multiple-choice' | 'matching' | 'fill-blank'
   };
 };
 

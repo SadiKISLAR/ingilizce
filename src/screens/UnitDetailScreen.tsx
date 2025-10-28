@@ -104,14 +104,14 @@ const UnitDetailScreen = () => {
 
         {/* Test Butonu */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Test', { unitId: unit.id })}
+          onPress={() => navigation.navigate('TestModeSelection', { unitId: unit.id })}
           style={styles.activityButton}
           activeOpacity={0.8}
         >
           <View style={styles.activityCard}>
-            <Text style={styles.activityText}>Kelime Testi</Text>
+            <Text style={styles.activityText}>Kendinizi Test Edin</Text>
             <Text style={styles.activitySubtext}>
-              {unit.words.length >= 4 ? '10 soru' : 'En az 4 kelime gerekli'}
+              {unit.words.length >= 4 ? 'Çoktan seçmeli, boşluk doldurma...' : 'En az 4 kelime gerekli'}
             </Text>
           </View>
         </TouchableOpacity>

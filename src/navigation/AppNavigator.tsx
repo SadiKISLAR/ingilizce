@@ -12,6 +12,7 @@ import GradeSelectionScreen from '../screens/GradeSelectionScreen';
 import UnitListScreen from '../screens/UnitListScreen';
 import UnitDetailScreen from '../screens/UnitDetailScreen';
 import FlashcardsScreen from '../screens/FlashcardsScreen';
+import TestModeSelectionScreen from '../screens/TestModeSelectionScreen';
 import TestScreen from '../screens/TestScreen';
 
 // Stack Navigator oluşturuyoruz
@@ -86,6 +87,17 @@ const AppNavigator = () => {
           component={FlashcardsScreen}
           options={{ 
             title: 'Kelime Kartları',
+            headerStyle: { backgroundColor: '#0066CC' },
+            headerTintColor: '#fff',
+          }}
+        />
+        
+        {/* Test Modu Seçim Ekranı */}
+        <Stack.Screen 
+          name="TestModeSelection" 
+          component={TestModeSelectionScreen}
+          options={{ 
+            title: 'Test Seçimi',
             headerStyle: { backgroundColor: '#0066CC' },
             headerTintColor: '#fff',
           }}
