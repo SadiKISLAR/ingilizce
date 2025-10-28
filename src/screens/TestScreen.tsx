@@ -54,26 +54,29 @@ const TestScreen = () => {
     }
   }, [unit, questionType]);
   
-  // Yeni soru gösterildiğinde İngilizce kelimeyi oku
+  // Yeni soru gösterildiğinde İngilizce kelimeyi oku (sadece İngilizce soru ise)
   useEffect(() => {
     if (questions.length > 0 && currentQuestionIndex < questions.length) {
       const currentQ = questions[currentQuestionIndex];
-      // İngilizce kelimeyi bul ve oku
-      const englishWord = currentQ.questionWord.english;
       
-      // Kısa gecikme sonra oku (animasyon için)
-      const timer = setTimeout(() => {
-        Speech.speak(englishWord, {
-          language: 'en-US',
-          pitch: 1.0,
-          rate: 0.75,
-        });
-      }, 400);
-      
-      return () => {
-        clearTimeout(timer);
-        Speech.stop();
-      };
+      // Sadece İngilizce kelime soruluyorsa (İngilizce → Türkçe) oku
+      if (currentQ.type === 'english-to-turkish') {
+        const englishWord = currentQ.questionWord.english;
+        
+        // Kısa gecikme sonra oku (animasyon için)
+        const timer = setTimeout(() => {
+          Speech.speak(englishWord, {
+            language: 'en-US',
+            pitch: 1.0,
+            rate: 0.75,
+          });
+        }, 400);
+        
+        return () => {
+          clearTimeout(timer);
+          Speech.stop();
+        };
+      }
     }
   }, [currentQuestionIndex, questions]);
   
@@ -407,19 +410,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 20,
+    padding: 12,
+    paddingBottom: 12,
   },
   questionContainer: {
     flex: 1,
   },
   questionTypeContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
     borderRadius: 10,
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.4)',
   },
@@ -441,69 +444,69 @@ const styles = StyleSheet.create({
   },
   questionCard: {
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
   },
   questionLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#666',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
   },
   questionText: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1e3a5f',
     textAlign: 'center',
   },
   optionsContainer: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   optionButton: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 10,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   optionButtonSelected: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 10,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#0066CC',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   optionButtonCorrect: {
     backgroundColor: '#d4edda',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 10,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#28a745',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   optionButtonWrong: {
     backgroundColor: '#f8d7da',
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 10,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#dc3545',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   optionLetter: {
     fontSize: 16,
@@ -529,9 +532,9 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     backgroundColor: '#00CC66',
-    borderRadius: 14,
-    padding: 16,
-    marginTop: 12,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
