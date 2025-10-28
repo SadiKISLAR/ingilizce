@@ -16,6 +16,7 @@ import { RootStackParamList } from '../navigation/types';
 import { grade6Units } from '../data/mockData';
 import { generateQuiz, calculateScore, getScoreMessage, QuizQuestion } from '../utils/quizGenerator';
 import AdBanner from '../components/AdBanner';
+import * as Speech from 'expo-speech';
 
 type TestScreenRouteProp = RouteProp<RootStackParamList, 'Test'>;
 
@@ -52,6 +53,29 @@ const TestScreen = () => {
       }).start();
     }
   }, [unit, questionType]);
+  
+  // Yeni soru gösterildiğinde İngilizce kelimeyi oku
+  useEffect(() => {
+    if (questions.length > 0 && currentQuestionIndex < questions.length) {
+      const currentQ = questions[currentQuestionIndex];
+      // İngilizce kelimeyi bul ve oku
+      const englishWord = currentQ.questionWord.english;
+      
+      // Kısa gecikme sonra oku (animasyon için)
+      const timer = setTimeout(() => {
+        Speech.speak(englishWord, {
+          language: 'en-US',
+          pitch: 1.0,
+          rate: 0.75,
+        });
+      }, 400);
+      
+      return () => {
+        clearTimeout(timer);
+        Speech.stop();
+      };
+    }
+  }, [currentQuestionIndex, questions]);
   
   if (!unit) {
     return (
@@ -361,41 +385,41 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   progressContainer: {
-    padding: 20,
-    paddingTop: 60,
+    padding: 16,
+    paddingTop: 56,
   },
   progressBar: {
-    height: 8,
+    height: 6,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   progressFill: {
-    height: 8,
+    height: 6,
     backgroundColor: '#00CC66',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   progressText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: 16,
+    paddingBottom: 20,
   },
   questionContainer: {
     flex: 1,
   },
   questionTypeContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
     alignSelf: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.4)',
   },
@@ -405,21 +429,21 @@ const styles = StyleSheet.create({
   },
   questionTypeText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
   },
   questionTypeHint: {
     color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: 11,
-    marginTop: 4,
+    fontSize: 10,
+    marginTop: 2,
     textAlign: 'center',
   },
   questionCard: {
     backgroundColor: 'white',
-    borderRadius: 24,
-    padding: 32,
-    marginBottom: 32,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -427,13 +451,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   questionLabel: {
-    fontSize: 16,
+    fontSize: 13,
     color: '#666',
-    marginBottom: 12,
+    marginBottom: 8,
     textAlign: 'center',
   },
   questionText: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#1e3a5f',
     textAlign: 'center',
@@ -443,80 +467,80 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   optionButtonSelected: {
     backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#0066CC',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   optionButtonCorrect: {
     backgroundColor: '#d4edda',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#28a745',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   optionButtonWrong: {
     backgroundColor: '#f8d7da',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#dc3545',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   optionLetter: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#0066CC',
-    marginRight: 16,
-    minWidth: 30,
+    marginRight: 12,
+    minWidth: 24,
   },
   optionText: {
-    fontSize: 18,
+    fontSize: 15,
     color: '#1e3a5f',
     flex: 1,
   },
   checkmark: {
-    fontSize: 28,
+    fontSize: 22,
     color: '#28a745',
-    marginLeft: 8,
+    marginLeft: 6,
   },
   crossmark: {
-    fontSize: 28,
+    fontSize: 22,
     color: '#dc3545',
-    marginLeft: 8,
+    marginLeft: 6,
   },
   nextButton: {
     backgroundColor: '#00CC66',
-    borderRadius: 16,
-    padding: 20,
-    marginTop: 24,
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowRadius: 4,
     elevation: 4,
   },
   nextButtonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
   },
