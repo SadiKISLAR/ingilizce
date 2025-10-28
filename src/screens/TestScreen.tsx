@@ -8,7 +8,8 @@ import {
   ScrollView,
   StyleSheet, 
   StatusBar,
-  Animated 
+  Animated,
+  Alert 
 } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
@@ -34,11 +35,14 @@ const TestScreen = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [questionType, setQuestionType] = useState<'mixed' | 'english-to-turkish' | 'turkish-to-english'>('mixed');
+  const [canChangeType, setCanChangeType] = useState(true);
   
   // Quiz'i başlat
   useEffect(() => {
     if (unit && unit.words.length >= 4) {
-      const quiz = generateQuiz(unit.words, 10);
+      const fixedType = questionType === 'mixed' ? undefined : questionType;
+      const quiz = generateQuiz(unit.words, 10, fixedType);
       setQuestions(quiz);
       // Fade in animasyonu
       Animated.timing(fadeAnim, {
@@ -47,7 +51,7 @@ const TestScreen = () => {
         useNativeDriver: true,
       }).start();
     }
-  }, [unit]);
+  }, [unit, questionType]);
   
   if (!unit) {
     return (
@@ -82,6 +86,11 @@ const TestScreen = () => {
     setSelectedAnswer(answer);
     setIsAnswered(true);
     
+    // İlk soruyu cevapladıysa artık dil değişikliği yapılamaz
+    if (currentQuestionIndex === 0 && canChangeType) {
+      setCanChangeType(false);
+    }
+    
     // Doğru mu kontrol et
     if (answer === currentQuestion.correctAnswer) {
       setCorrectCount(correctCount + 1);
@@ -108,15 +117,44 @@ const TestScreen = () => {
     }
   };
   
+  // Dil değiştirme
+  const handleChangeQuestionType = () => {
+    if (!canChangeType) {
+      Alert.alert(
+        'Dil Değişikliği',
+        'Sınavı bitirmeden dil değiştiremezsiniz. Önce testi tamamlayın.',
+        [{ text: 'Tamam', style: 'default' }]
+      );
+      return;
+    }
+    
+    // Cycle through: mixed → eng-tr → tr-eng → mixed
+    if (questionType === 'mixed') {
+      setQuestionType('english-to-turkish');
+    } else if (questionType === 'english-to-turkish') {
+      setQuestionType('turkish-to-english');
+    } else {
+      setQuestionType('mixed');
+    }
+    
+    // Quiz yeniden oluşturulacak
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setIsAnswered(false);
+    setCorrectCount(0);
+  };
+  
   // Testi tekrarla
   const handleRetry = () => {
-    const quiz = generateQuiz(unit.words, 10);
+    const fixedType = questionType === 'mixed' ? undefined : questionType;
+    const quiz = generateQuiz(unit.words, 10, fixedType);
     setQuestions(quiz);
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setIsAnswered(false);
     setCorrectCount(0);
     setShowResults(false);
+    setCanChangeType(true); // Yeni testte tekrar değiştirilebilir
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -206,14 +244,28 @@ const TestScreen = () => {
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Animated.View style={[styles.questionContainer, { opacity: fadeAnim }]}>
-          {/* Soru Tipi */}
-          <View style={styles.questionTypeContainer}>
+          {/* Soru Tipi - Tıklanabilir */}
+          <TouchableOpacity 
+            style={[
+              styles.questionTypeContainer,
+              !canChangeType && styles.questionTypeContainerDisabled
+            ]}
+            onPress={handleChangeQuestionType}
+            activeOpacity={0.7}
+          >
             <Text style={styles.questionTypeText}>
-              {currentQuestion.type === 'english-to-turkish' 
-                ? '🇬🇧 İngilizce → 🇹🇷 Türkçe' 
-                : '🇹🇷 Türkçe → 🇬🇧 İngilizce'}
+              {questionType === 'mixed' 
+                ? '🔀 Karışık Mod (Dokun)' 
+                : questionType === 'english-to-turkish'
+                ? '🇬🇧 İngilizce → 🇹🇷 Türkçe (Dokun)'
+                : '🇹🇷 Türkçe → 🇬🇧 İngilizce (Dokun)'}
             </Text>
-          </View>
+            {canChangeType && (
+              <Text style={styles.questionTypeHint}>
+                ⓘ Değiştirmek için dokun
+              </Text>
+            )}
+          </TouchableOpacity>
           
           {/* Soru */}
           <View style={styles.questionCard}>
@@ -344,11 +396,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignSelf: 'center',
     marginBottom: 24,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  questionTypeContainerDisabled: {
+    opacity: 0.6,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   questionTypeText: {
     color: 'white',
     fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
+  },
+  questionTypeHint: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 11,
+    marginTop: 4,
+    textAlign: 'center',
   },
   questionCard: {
     backgroundColor: 'white',

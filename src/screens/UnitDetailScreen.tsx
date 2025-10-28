@@ -73,7 +73,7 @@ const UnitDetailScreen = () => {
       </View>
 
       {/* Aktivite butonları - 3 buton */}
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.buttonsContainer}>
         {/* Kelime Listesi Butonu */}
         <TouchableOpacity
           onPress={() => setShowWordList(true)}
@@ -115,7 +115,7 @@ const UnitDetailScreen = () => {
             </Text>
           </View>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
       
       {/* Kelime Listesi Modal */}
       <Modal
@@ -195,63 +195,61 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 64,
-    paddingBottom: 32,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
   unitTitle: {
     color: 'white',
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: 'center',
   },
   unitSubtitle: {
     color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: 18,
-    marginBottom: 24,
+    fontSize: 14,
+    marginBottom: 16,
     textAlign: 'center',
   },
   progressBarContainer: {
-    width: 256,
-    height: 12,
+    width: 200,
+    height: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 999,
     overflow: 'hidden',
   },
   progressBar: {
-    height: 12,
-    width: 64, // Sabit genişlik - şimdilik
+    height: 8,
+    width: 50,
     backgroundColor: '#00CC66',
     borderRadius: 999,
   },
-  scrollView: {
+  buttonsContainer: {
     flex: 1,
-  },
-  scrollContent: {
     paddingHorizontal: 24,
-    paddingBottom: 32,
+    justifyContent: 'center',
   },
   activityButton: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   activityCard: {
     backgroundColor: '#1e3a5f',
-    borderRadius: 24,
-    padding: 32,
-    borderWidth: 4,
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   activityText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   activitySubtext: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 6,
     opacity: 0.8,
   },
   // Modal Stilleri

@@ -31,9 +31,14 @@ const shuffleArray = <T,>(array: T[]): T[] => {
  * Kelime listesinden quiz soruları oluşturur
  * @param words - Kelime listesi (minimum 4 kelime olmalı)
  * @param questionCount - Kaç soru oluşturulacak (varsayılan: 10)
+ * @param fixedType - Sabit soru tipi (opsiyonel)
  * @returns Quiz soruları
  */
-export const generateQuiz = (words: Word[], questionCount: number = 10): QuizQuestion[] => {
+export const generateQuiz = (
+  words: Word[], 
+  questionCount: number = 10,
+  fixedType?: 'english-to-turkish' | 'turkish-to-english'
+): QuizQuestion[] => {
   if (words.length < 4) {
     throw new Error('En az 4 kelime gerekli!');
   }
@@ -45,9 +50,9 @@ export const generateQuiz = (words: Word[], questionCount: number = 10): QuizQue
   const selectedWords = shuffleArray(words).slice(0, actualQuestionCount);
   
   const questions: QuizQuestion[] = selectedWords.map((word, index) => {
-    // Rastgele soru tipi seç (İngilizce->Türkçe veya Türkçe->İngilizce)
-    const type: 'english-to-turkish' | 'turkish-to-english' = 
-      Math.random() > 0.5 ? 'english-to-turkish' : 'turkish-to-english';
+    // Sabit tip varsa onu kullan, yoksa rastgele seç
+    const type: 'english-to-turkish' | 'turkish-to-english' = fixedType || 
+      (Math.random() > 0.5 ? 'english-to-turkish' : 'turkish-to-english');
     
     // Yanlış cevaplar için 3 rastgele kelime seç
     const wrongWords = getRandomWords(words, word.id, 3);
